@@ -3,26 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智尚衣橱 - AI智能衣橱</title>
+    <title>智尚衣橱 - 服装搭配助手</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="login-overlay">
-            <h1 class="main-title">智尚衣橱</h1>
-            <div class="login-section">
-                <div class="login-form">
-                    <div class="input-group">
-                        <input type="text" id="username" placeholder="用户名" required>
-                    </div>
-                    <div class="input-group">
-                        <input type="password" id="password" placeholder="密码" required>
-                    </div>
-                    <button class="login-btn" onclick="handleLogin()">登录</button>
-                </div>
+    <div class="app-container">
+        <!-- 顶部导航栏 -->
+        <header class="navbar">
+            <div class="logo">智尚衣橱</div>
+            <nav>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">我的衣橱</a></li>
+                    <li><a href="#">我的搭配</a></li>
+                    <li><a href="#">设置</a></li>
+                </ul>
+            </nav>
+            <div class="user-avatar">
+                <img src="https://via.placeholder.com/40" alt="用户头像">
             </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 左侧：衣橱分类 -->
+            <aside class="wardrobe-sidebar">
+                <div class="sidebar-header">
+                    <h2>我的衣橱</h2>
+                    <button id="uploadBtn" class="upload-btn">
+                        <i class="icon">📤</i> 上传图片
+                    </button>
+                </div>
+                <div class="clothing-categories">
+                    <button class="category-btn active" data-category="all">全部</button>
+                    <button class="category-btn" data-category="tops">上衣</button>
+                    <button class="category-btn" data-category="pants">裤子</button>
+                    <button class="category-btn" data-category="shoes">鞋子</button>
+                    <button class="category-btn" data-category="accessories">配饰</button>
+                </div>
+                <div class="clothing-list" id="clothingList">
+                    <!-- 衣物列表将由JavaScript动态生成 -->
+                </div>
+            </aside>
+
+            <!-- 中间：搭配区域 -->
+            <section class="outfit-area">
+                <div class="outfit-header">
+                    <h2>我的搭配</h2>
+                    <div class="outfit-actions">
+                        <button id="saveOutfitBtn" class="save-btn">
+                            <i class="icon">❤️</i> 保存搭配
+                        </button>
+                        <button id="clearOutfitBtn" class="clear-btn">
+                            <i class="icon">🗑️</i> 清空
+                        </button>
+                    </div>
+                </div>
+                <!-- 搭配画布，用于拖拽衣物 -->
+                <div class="outfit-canvas" id="outfitCanvas">
+                    <!-- 固定分区 -->
+                    <div class="canvas-section hat-section" data-section="hat"></div>
+                    <div class="canvas-section top-section" data-section="top"></div>
+                    <div class="canvas-section pants-section" data-section="pants"></div>
+                    <div class="canvas-section shoes-section" data-section="shoes"></div>
+                    <div class="canvas-section accessory-section" data-section="accessory"></div>
+                    
+                    <div class="outfit-dropzone">
+                        <p>将衣物从左侧拖拽到这里进行搭配</p>
+                    </div>
+                </div>
+                <div class="outfit-preview">
+                    <h3>搭配预览</h3>
+                    <div id="outfitPreviewContainer">
+                        <!-- 搭配预览将由JavaScript动态生成 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 右侧：已收藏搭配 -->
+            <aside class="saved-outfits">
+                <div class="saved-header">
+                    <h2>我的收藏</h2>
+                    <span class="saved-count" id="savedCount">0</span>
+                </div>
+                <div class="saved-list" id="savedOutfitsList">
+                    <!-- 已保存的搭配将由JavaScript动态生成 -->
+                    <div class="empty-saved">
+                        <p>暂无收藏的搭配</p>
+                        <p class="hint">搭配完成后点击"保存搭配"按钮</p>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- 模态框：查看搭配详情 -->
+    <div id="outfitDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modalTitle">搭配详情</h2>
+            <div id="modalOutfitDetail"></div>
         </div>
     </div>
+
+    <!-- 模态框：上传图片 -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeUploadModal">&times;</span>
+            <h2>上传衣物图片</h2>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="clothingImage">选择图片</label>
+                    <input type="file" id="clothingImage" accept="image/*" required>
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+                <div class="form-group">
+                    <label for="clothingName">衣物名称</label>
+                    <input type="text" id="clothingName" placeholder="例如：红色T恤" required>
+                </div>
+                <div class="form-group">
+                    <label for="clothingCategory">分类</label>
+                    <select id="clothingCategory" required>
+                        <option value="tops">上衣</option>
+                        <option value="pants">裤子</option>
+                        <option value="shoes">鞋子</option>
+                        <option value="accessories">配饰</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="clothingColor">颜色</label>
+                    <input type="text" id="clothingColor" placeholder="例如：红色" required>
+                </div>
+                <button type="submit" class="submit-btn">上传保存</button>
+            </form>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
